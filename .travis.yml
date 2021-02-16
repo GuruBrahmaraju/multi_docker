@@ -1,24 +1,24 @@
 sudo: required
+language: generic
+
 services:
   - docker
 
 before_install:
-  - docker build -t gurubrahmaraju/react-test -f ./client/Dockerfile.dev
+  - docker build -t gurubrahmaraju/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  -docker run gurubrahmaraju/react-test npm test -- --coverages
+  - docker run -e CI=true gurubrahmaraju/react-test npm test
 
 after_success:
   - docker build -t gurubrahmaraju/multi-client ./client
-  - docker build -t gurubrahmaraju/multi-ngnix ./ngnix
+  - docker build -t gurubrahmaraju/multi-nginx ./nginx
   - docker build -t gurubrahmaraju/multi-server ./server
   - docker build -t gurubrahmaraju/multi-worker ./worker
-  #Login in to the Docker CLI 
-  - echo "$DOCKER_PASSWORD" | docker login -u "DOCKER_ID" --password-stdin
-  #Take the images and push to docker hub
-
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those images and push them to docker hub
   - docker push gurubrahmaraju/multi-client
-  - docker push gurubrahmaraju/multi-ngnix
+  - docker push gurubrahmaraju/multi-nginx
   - docker push gurubrahmaraju/multi-server
   - docker push gurubrahmaraju/multi-worker
-
